@@ -2,15 +2,19 @@
 
 #Define build variables
 
-FLAVOUR=""
-MIRROR=""
-INTERACTIVE="false"
 ACTION=""
-EXTRA_PPAS=""
+DISTRO=""
+FLAVOUR=""
+
+MIRROR=""
 EXTRA_MIRRORS=""
-EXTRAARGS=""
-EXTRAENV=""
-DEFAULTVERSION="18"
+EXTRA_PPAS=""
+
+DEFAULTVERSION="19"
+
+VARIABLES_FILE="auto/settings"
+EXTRA_CONFIG="auto/additional_config/"
+
 
 # Define extra variables
 
@@ -27,12 +31,12 @@ source /usr/share/iso-maker/libs/IsoMakerUtils
 
 usage(){
 	echo "usage"
-	echo -e "\t $(basename $0) build FLAVOUR EXTRAOPTIONS"
+	echo -e "\t $(basename $0) build DISTRO FLAVOUR EXTRAOPTIONS"
 	echo -e "\t $(basename $0) clean"
 	echo -e ""
 	echo -e "\t * EXTRAOPTIONS:"
 	echo -e "\t    -a ARCH | --arch=ARCH"
-	echo -e "\t    -m MIRROR | --arch=MIRROR"
+	echo -e "\t    -m MIRROR | --mirror=MIRROR"
 	echo -e "\t    -k KERNEL | --kernel=KERNEL"
 	echo -e "\t    -p PPA[:Pining_Number] | --ppa=PPA[:Pining_Number]"
 	echo -e "\t    -e url | --extramirror=url"
@@ -60,30 +64,34 @@ showErrors(){
 
 setEnvironment(){
 
+	# Copy General auto scripts
 	if [ ! -e auto ]; then
-		cp -r /usr/share/iso-maker/auto . 
+		cp -r /usr/share/isomaker/scripts ./auto
 	fi
 
-	if [ "$INTERACTIVE" = "true" ]; then
-		EXTRAARGS="--interactive=true "
+	# Copy Distro configuration
+	if [ -e /usr/share/isomaker/types/$DISTRO/settings ]; then
+		cp /usr/share/isomaker/types/$DISTRO/settings ./auto/
 	fi
 
 	if [ -n $MIRROR ]; then
-		EXTRAENV="${EXTRAENV}MIRROR=$MIRROR "
+		echo "MIRROR=$MIRROR" >> $VARIABLES_FILE
+		echo "MIRRORDEFAULT=$MIRROR" >> $VARIABLES_FILE
 	fi
 	if [ -n $KERNEL ]; then
-		EXTRAENV="${EXTRAENV}KERNEL_PACKAGES=$KERNEL_PACKAGES "
+		echo "KERNEL_PACKAGES=$KERNEL_PACKAGES" >> $VARIABLES_FILE
 	fi
-	if [ -z $FLAVOUR ]; then
-		echo -e "Error!"
-		echo -e "\tFlavour is needed"
-		exit 0
+
+	if [ -n $ARCH ]; then
+		echo "ARCH=${ARCH}" >> $VARIABLES_FILE
 	fi
-	export FLAVOUR
-	export MIRROR
-	export KERNEL_PACKAGES
-	export ARCH
 	
+	if [ -n $INTERACTIVE ]; then
+		echo "INTERACTIVE=true" >> $VARIABLES_FILE
+	fi
+
+	echo "DISTRO=${DISTRO}" >> $VARIABLES_FILE
+	echo "FLAVOUR=${FLAVOUR}" >> $VARIABLES_FILE
 }
 
 parseArgs(){
@@ -93,7 +101,8 @@ parseArgs(){
 		case $key in 
 			build)
 				ACTION="build"
-				FLAVOUR="$2"
+				DISTRO="$2"
+				FLAVOUR="$3"
 				shift
 			;;
 			clean)
@@ -145,12 +154,13 @@ parseArgs(){
 
 }
 
-parseArgs $@
+##########
+#		 #
+#  MAIN  #
+#		 #
+##########
 
-if [ -z $ACTION ]; then
-	usage
-	exit 0
-fi
+parseArgs $@
 
 case $ACTION in 
 	clean)
@@ -158,7 +168,11 @@ case $ACTION in
 		exit 0
 	;;
 	build)
-	#continue
+		#continue
+	;;
+	*)
+		usage
+		exit 0
 	;;
 esac
 
@@ -167,26 +181,22 @@ esac
 
 setEnvironment
 
-EXTRAARGS="${EXTRAARGS} --archives extra-ppas.list"
 cleanExtraSources
-lb config ${EXTRAARGS}
 
-rsync -ax --ignore-existing  /usr/share/lliurex-maker/configuration/common/* config/ || true
-rsync -ax --ignore-existing  /usr/share/lliurex-maker/configuration/$FLAVOUR/* config/ || true
+
+lb config 
+
+rsync -ax --ignore-existing  /usr/share/isomaker/types/$DISTRO/configuration/common/* config/ || true
+rsync -ax --ignore-existing  /usr/share/isomaker/types/$DISTRO/configuration/$FLAVOUR/* config/ || true
 rsync -ax --ignore-existing  /usr/share/lliurex-preseed/common/lliurex-all config/preseed/lliurex-all.preseed.chroot
-
-
-if [ "$ARCH" = "amd64" ]; then
-	cp -r /usr/share/lliurex-maker/uefi/. config/includes.binary
-fi
 
 # Append ppas
 if [ "${EXTRA_PPAS}" != "" ]; then
-	addPPA	
+	addPPA	${EXTRA_PPAS}
 fi
 
 if [ "${EXTRA_MIRRORS}" != "" ]; then
-	addExtraMirror
+	addExtraMirror ${EXTRA_MIRRORS}
 fi
 
 
@@ -197,10 +207,11 @@ showResume
 showErrors
 
 if [ -e "binary.hybrid.iso" ]; then
+	source auto/settings
 	[[ ${ARCH} = "i386" ]] && ARCHLABEL="32bits" || ARCHLABEL="64bits"
 	DATELABEL=`date +%Y%m%d`
-	VERSIONLABEL=`cat config/lliurexversion || echo $DEFAULTVERSION`
-        mv binary.hybrid.iso lliurex-${FLAVOUR}_${ARCHLABEL}_${VERSIONLABEL}_${DATELABEL}.iso
+	VERSIONLABEL=`cat config/version_label || echo $DEFAULTVERSION`
+        mv binary.hybrid.iso ${DISTRIBUTION_NAME}-${FLAVOUR}_${ARCHLABEL}_${VERSIONLABEL}_${DATELABEL}.iso
 fi
 
 exit $cerr

@@ -105,9 +105,9 @@ case $BINARYFORMAT in
 		;;
 esac
 
-# If exists keyring is added
-if [ -n "$PACKAGE_KEYRING" ]; then
-	OPTS="${OPTS:+$OPTS } --keyring-packages $PACKAGE_KEYRING"
+# Is interactive ?
+if [ $INTERACTIVE ]; then
+	OPTS="${OPTS:+$OPTS } --interactive=true"
 fi
 
 for package in "${LIVE_PACKAGES[@]}"; do
@@ -151,8 +151,10 @@ lb config noauto \
 	${MIRROR:+--mirror-binary-volatile $MIRRORDEFAULT} \
 	${COMPONENTS:+--parent-archive-areas "$COMPONENTS"} \
 	--apt-source-archives false \
+	--archives extra-ppas.list \
 	${KERNEL_FLAVOURS:+--linux-flavours "$KERNEL_FLAVOURS"} \
 	${KERNEL_PACKAGES:+--linux-packages "$KERNEL_PACKAGES"} \
+	${PACKAGE_KEYRING:+--keyring-packages $PACKAGE_KEYRING} \
 	--initsystem none \
 	--bootloader "$BOOTLOADER" \
 	--initramfs-compression "${INITRAMFS_COMPRESSION:-lzma}" \
@@ -191,3 +193,11 @@ echo 'MKSQUASHFS_OPTIONS="${MKSQUASHFS_OPTIONS} -comp xz"' >> config/all
 if [ -e "config/extramirrors" ]; then
 	find config/extramirrors -type f -exec cat {} >> config/archives/extra-ppas.list.chroot \;
 fi
+
+case $ARCH in
+	amd64)
+	cp -r /usr/share/isomaker/uefi/. config/includes.binary
+	;;
+esac
+
+
