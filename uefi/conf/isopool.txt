@@ -1,0 +1,12 @@
+efibootmgr		install
+grub-efi		install
+grub-efi-amd64		install
+grub-efi-amd64-bin	install
+grub-efi-amd64-signed	install
+grub			install
+dkms			install
+secureboot-db		install
+setserial		install
+shim			install
+shim-signed		install
+mokutil			install

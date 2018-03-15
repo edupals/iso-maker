@@ -1,0 +1,23 @@
+Name: ${SUITE}
+Method: ${MIRROR} 
+Suite: ${SUITE}
+Components: main 
+Architectures: i386 amd64
+VerifyRelease: blindtrust
+FilterList: purge isopool.txt
+
+Name: ${SUITE}-updates
+Method: ${MIRROR}
+Suite: ${SUITE}-updates
+Components: main 
+Architectures: i386 amd64
+VerifyRelease: blindtrust
+FilterList: purge isopool.txt
+
+Name: ${SUITE}-security
+Method: ${MIRROR}
+Suite: ${SUITE}-security
+Components: main
+Architectures: i386 amd64
+VerifyRelease: blindtrust
+FilterList: purge isopool.txt

@@ -1,0 +1,30 @@
+SUITE="bionic"
+
+MIRROR="http://archive.ubuntu.com/ubuntu"
+
+MIRRORDEFAULT="http://archive.ubuntu.com/ubuntu"
+
+BINARYFORMAT="iso-hybrid"
+
+ISO_VOLUME="Ubuntu $SUITE $(date +%Y%m%d-%H:%M)"
+
+SYSLINUX_THEME="ubuntu-$SUITE"
+
+COMPONENTS="main restricted universe multiverse"
+
+ARCH="${ARCH}:=amd64"
+
+BINARY_REMOVE_LINUX=:
+
+MEMTEST=none
+SOURCE='--source false'
+BOOTLOADER=none
+BOOTAPPEND_LIVE=
+LIVE_TASK=
+
+CHROOT_HOOKS=
+BINARY_HOOKS=
+
+OPTS=
+
+LIVE_PACKAGES=()

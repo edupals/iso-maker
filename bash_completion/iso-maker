@@ -1,0 +1,31 @@
+have iso-maker &&
+_iso_maker()             
+{
+    local cur prev opts base
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    #
+    #  The basic options we'll complete.
+    #
+    opts="build clean -a --arch= -m --mirror= -i --interactive -p --ppa -e --extramirror"
+
+
+    #
+    #  Complete the arguments to some of the basic commands.
+    #
+    case "${prev}" in
+        build)
+            local running=$( ls /usr/share/iso-maker/flavours | tr "\n" " ")
+            COMPREPLY=( $(compgen -W "${running}" -- ${cur}) )
+            return 0
+            ;;
+        *)
+        ;;
+    esac
+
+   COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
+   return 0
+}
+[ "$have" ] && complete -F _iso_maker iso-maker

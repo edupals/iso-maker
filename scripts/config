@@ -1,0 +1,193 @@
+#! /bin/sh
+set -e
+
+###
+### add_package stage package
+### stage : live install
+### Append package to install on chroot stage
+###
+add_package ()
+{
+        local pass="$1"
+        shift
+        local pkg
+
+        for pkg; do
+                echo "$pkg" >> "config/package-lists/livecd-rootfs.list.chroot_$pass"
+        done
+}
+add_chroot_hook ()
+{
+	CHROOT_HOOKS="${CHROOT_HOOKS:+$CHROOT_HOOKS }$1"
+}
+
+add_binary_hook ()
+{
+	BINARY_HOOKS="${BINARY_HOOKS:+$BINARY_HOOKS }$1"
+}
+
+
+#
+# Main
+# 
+
+
+rm -rf config
+
+echo "Building on $(hostname --fqdn)"
+
+# load settings for build iso
+[ ! -e "/usr/share/isomaker/defaultsettings" ] || source "/usr/share/isomaker/defaultsettings"
+[ ! -e "auto/settings" ] || source auto/settings
+
+
+#Sanity checks
+if [ -z $FLAVOUR ]; then
+	echo "\n****************** ERROR ************************************************\n"
+	echo "\tFLAVOUR enviroment variable is not defined. Please indicate this variable"
+	echo "\n*************************************************************************\n"
+	exit 0
+fi
+
+if [ -z $ARCH ]; then
+	echo "\n****************** ERROR ************************************************\n"
+	echo "\tARCH enviroment variable is not defined. Please indicate this variable"
+	echo "\n*************************************************************************\n"
+	exit 0
+fi
+
+
+mkdir -p config/package-lists
+
+case $IMAGEFORMAT in
+	ext2|ext3|ext4)
+		OPTS="${OPTS:+$OPTS }--initravimmfs none --chroot-filesystem $IMAGEFORMAT"
+		PREINSTALLED=true
+		case $SUBPROJECT in
+			wubi)
+				add_package install lupin-support
+				COMPONENTS='main restricted universe multiverse'
+				;;
+			*)
+				case $PROJECT in
+					ubuntu-cpc)
+						;;
+					*)
+						add_package live jasper
+						;;
+				esac
+				;;
+		esac
+		;;
+
+	plain)
+		OPTS="${OPTS:+$OPTS }--initramfs none --chroot-filesystem $IMAGEFORMAT"
+		PREINSTALLED=true
+		;;
+
+	*)
+		case $PROJECT in
+			ubuntu-server|ubuntu-touch|ubuntu-pd)
+				;;
+			*)
+				add_package live lupin-casper
+				;;
+		esac
+		;;
+esac
+
+case $BINARYFORMAT in
+	iso*|usb*)
+		BINARY_IMAGES="$BINARYFORMAT"
+		MEMTEST=memtest86+
+		BOOTLOADER=syslinux
+		OPTS="${OPTS:+$OPTS }--zsync=false"
+		;;
+esac
+
+# If exists keyring is added
+if [ -n "$PACKAGE_KEYRING" ]; then
+	OPTS="${OPTS:+$OPTS } --keyring-packages $PACKAGE_KEYRING"
+fi
+
+for package in "${LIVE_PACKAGES[@]}"; do
+	add_package live $package
+done
+
+case $ARCH in
+	amd64)	add_package live linux-signed-generic ;;
+esac
+#		add_chroot_hook remove-gnome-icon-cache
+
+
+add_chroot_hook update-apt-file-cache
+add_chroot_hook update-apt-xapian-index
+add_chroot_hook update-mlocate-database
+add_chroot_hook remove-dbus-machine-id
+add_chroot_hook remove-openssh-server-host-keys
+add_chroot_hook remove-udev-persistent-rules
+add_chroot_hook remove-python-py
+
+lb config noauto \
+    --architecture "$ARCH" \
+	--mode ubuntu \
+	--distribution "$SUITE" \
+	--bootstrap-keyring ubuntu-keyring \
+	--binary-images "$BINARY_IMAGES" \
+	--memtest "$MEMTEST" \
+	$SOURCE \
+	--build-with-chroot false \
+	${MIRROR:+--parent-mirror-bootstrap $MIRROR} \
+	${MIRROR:+--parent-mirror-chroot-volatile $MIRROR} \
+	${MIRROR:+--parent-mirror-chroot-security $MIRROR} \
+	${MIRROR:+--parent-mirror-binary $MIRRORDEFAULT} \
+	${MIRROR:+--parent-mirror-binary-security $MIRRORDEFAULT} \
+	${MIRROR:+--parent-mirror-binary-volatile $MIRRORDEFAULT} \
+	${MIRROR:+--mirror-bootstrap $MIRROR} \
+	${MIRROR:+--mirror-chroot-volatile $MIRROR} \
+	${MIRROR:+--mirror-chroot-security $MIRROR} \
+	${MIRROR:+--mirror-binary $MIRRORDEFAULT} \
+	${MIRROR:+--mirror-binary-security $MIRRORDEFAULT} \
+	${MIRROR:+--mirror-binary-volatile $MIRRORDEFAULT} \
+	${COMPONENTS:+--parent-archive-areas "$COMPONENTS"} \
+	--apt-source-archives false \
+	${KERNEL_FLAVOURS:+--linux-flavours "$KERNEL_FLAVOURS"} \
+	${KERNEL_PACKAGES:+--linux-packages "$KERNEL_PACKAGES"} \
+	--initsystem none \
+	--bootloader "$BOOTLOADER" \
+	--initramfs-compression "${INITRAMFS_COMPRESSION:-lzma}" \
+	--syslinux-theme $SYSLINUX_THEME\
+	--iso-volume "$ISO_VOLUME" \
+	--apt-secure false \
+	${BOOTAPPEND_LIVE:+--bootappend-live "$BOOTAPPEND_LIVE"} \
+	$OPTS \
+	"$@"
+
+case $ARCH in
+        amd64) 
+		if [ "$ENABLE_I386" != "" ]; then
+			mkdir -p config/hooks
+			cp /usr/share/isomaker/hooks/enablei386* config/hooks/
+		fi
+		;;
+esac
+
+echo "LB_CHROOT_HOOKS=\"$CHROOT_HOOKS\"" >> config/chroot
+echo "LB_BINARY_HOOKS=\"$BINARY_HOOKS\"" >> config/binary
+echo "BUILDSTAMP=\"$NOW\"" >> config/binary
+
+
+if $BINARY_REMOVE_LINUX; then
+	cat > config/binary_rootfs/excludes << EOF
+boot/vmlinu?-*
+boot/initrd.img-*
+EOF
+fi
+
+rsync -ax --ignore-existing  auto/additional_config/* config/ || true
+
+echo 'MKSQUASHFS_OPTIONS="${MKSQUASHFS_OPTIONS} -comp xz"' >> config/all
+
+if [ -e "config/extramirrors" ]; then
+	find config/extramirrors -type f -exec cat {} >> config/archives/extra-ppas.list.chroot \;
+fi

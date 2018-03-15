@@ -1,0 +1,206 @@
+#!/bin/bash
+
+#Define build variables
+
+FLAVOUR=""
+MIRROR=""
+INTERACTIVE="false"
+ACTION=""
+EXTRA_PPAS=""
+EXTRA_MIRRORS=""
+EXTRAARGS=""
+EXTRAENV=""
+DEFAULTVERSION="18"
+
+# Define extra variables
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# This include function addPPA
+# This include function cleanExtraSources
+# This include function addExtraMirror
+source /usr/share/iso-maker/libs/IsoMakerUtils 
+
+# Functions
+
+usage(){
+	echo "usage"
+	echo -e "\t $(basename $0) build FLAVOUR EXTRAOPTIONS"
+	echo -e "\t $(basename $0) clean"
+	echo -e ""
+	echo -e "\t * EXTRAOPTIONS:"
+	echo -e "\t    -a ARCH | --arch=ARCH"
+	echo -e "\t    -m MIRROR | --arch=MIRROR"
+	echo -e "\t    -k KERNEL | --kernel=KERNEL"
+	echo -e "\t    -p PPA[:Pining_Number] | --ppa=PPA[:Pining_Number]"
+	echo -e "\t    -e url | --extramirror=url"
+	echo -e "\t    -i | --interactive"
+	echo -e "\t "
+}
+
+showResume(){
+	echo -e "\n\n"
+	echo -e "\t${GREEN}**********    Resume    **********${NC}\n"
+	echo -e "    FLAVOUR : $FLAVOUR "
+	echo -e "    MIRROR : $MIRROR "
+	echo -e "    ARCH : $ARCH "
+	echo -e "    PPA : $EXTRA_PPAS "
+	echo -e "\n\t${GREEN}**********************************${NC}"
+}
+	
+showErrors(){
+	if [ $( cat binary.log | grep "^E:" | tee errores | wc -l ) -gt 0 ];then 
+		echo -e "\n\t${RED}*******   Errors   **********${NC}\n"
+		cat errores | sed -e "s%^%    %g" 
+		echo -e "\n\t${RED}*****************************${NC}\n"
+	fi	
+}
+
+setEnvironment(){
+
+	if [ ! -e auto ]; then
+		cp -r /usr/share/iso-maker/auto . 
+	fi
+
+	if [ "$INTERACTIVE" = "true" ]; then
+		EXTRAARGS="--interactive=true "
+	fi
+
+	if [ -n $MIRROR ]; then
+		EXTRAENV="${EXTRAENV}MIRROR=$MIRROR "
+	fi
+	if [ -n $KERNEL ]; then
+		EXTRAENV="${EXTRAENV}KERNEL_PACKAGES=$KERNEL_PACKAGES "
+	fi
+	if [ -z $FLAVOUR ]; then
+		echo -e "Error!"
+		echo -e "\tFlavour is needed"
+		exit 0
+	fi
+	export FLAVOUR
+	export MIRROR
+	export KERNEL_PACKAGES
+	export ARCH
+	
+}
+
+parseArgs(){
+	
+	while [[ $# > 0 ]]; do
+		key="$1"
+		case $key in 
+			build)
+				ACTION="build"
+				FLAVOUR="$2"
+				shift
+			;;
+			clean)
+				ACTION="clean"
+			;;
+			-a)
+				ARCH="$2"
+				shift
+			;;
+			--arch)
+				ARCH=${key##--arch=}
+			;;
+			-k)
+				KERNEL_PACKAGES="$2"
+				shift
+			;;
+			--kernel)
+				KERNEL_PACKAGES=${key##--kernel=}
+			;;
+
+			-m)
+				MIRROR="$2"
+				shift
+			;;
+			--mirror)
+				MIRROR=${key##--mirror=}
+			;;
+			-i|--interactive)
+				INTERACTIVE="true"
+			;;
+			-p)
+				EXTRA_PPAS="${EXTRA_PPAS} $2"
+				shift
+			;;
+			--ppa)
+				EXTRA_PPAS="${EXTRA_PPAS} ${key##--ppa=}"
+			;;
+			-e)
+				EXTRA_MIRRORS="${EXTRA_MIRRORS} $2"
+				shift
+			;;
+			--extramirror)
+				EXTRA_MIRRORS="${EXTRA_MIRRORS} ${key##--extramirror=}"
+			;;
+
+		esac
+		shift
+	done
+
+}
+
+parseArgs $@
+
+if [ -z $ACTION ]; then
+	usage
+	exit 0
+fi
+
+case $ACTION in 
+	clean)
+		lb clean
+		exit 0
+	;;
+	build)
+	#continue
+	;;
+esac
+
+
+# Build iso
+
+setEnvironment
+
+EXTRAARGS="${EXTRAARGS} --archives extra-ppas.list"
+cleanExtraSources
+lb config ${EXTRAARGS}
+
+rsync -ax --ignore-existing  /usr/share/lliurex-maker/configuration/common/* config/ || true
+rsync -ax --ignore-existing  /usr/share/lliurex-maker/configuration/$FLAVOUR/* config/ || true
+rsync -ax --ignore-existing  /usr/share/lliurex-preseed/common/lliurex-all config/preseed/lliurex-all.preseed.chroot
+
+
+if [ "$ARCH" = "amd64" ]; then
+	cp -r /usr/share/lliurex-maker/uefi/. config/includes.binary
+fi
+
+# Append ppas
+if [ "${EXTRA_PPAS}" != "" ]; then
+	addPPA	
+fi
+
+if [ "${EXTRA_MIRRORS}" != "" ]; then
+	addExtraMirror
+fi
+
+
+lb build
+cerr=$?
+
+showResume
+showErrors
+
+if [ -e "binary.hybrid.iso" ]; then
+	[[ ${ARCH} = "i386" ]] && ARCHLABEL="32bits" || ARCHLABEL="64bits"
+	DATELABEL=`date +%Y%m%d`
+	VERSIONLABEL=`cat config/lliurexversion || echo $DEFAULTVERSION`
+        mv binary.hybrid.iso lliurex-${FLAVOUR}_${ARCHLABEL}_${VERSIONLABEL}_${DATELABEL}.iso
+fi
+
+exit $cerr

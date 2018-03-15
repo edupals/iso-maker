@@ -1,0 +1,9 @@
+Codename: ${SUITE}
+Suite: ${SUITE}
+Version: ${DISTRIBUTION_VERSION}
+Origin: ${DISTRIBUTION_NAME}
+Label: ${DISTRIBUTION_NAME}
+Description: ${DISTRIBUTION_DESCRIPTION}
+Architectures: amd64
+Components: main 
+Update: - ${SUITE} ${SUITE}-updates ${SUITE}-security
