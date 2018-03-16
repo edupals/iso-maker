@@ -1,0 +1,13 @@
+Source: iso-maker
+Section: admin
+Priority: optional
+Maintainer: Raul Rodrigo Segura <raurodse@gmail.com>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.6
+Homepage: http://lliurex.net
+
+Package: iso-maker
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, live-build, curl, reprepro, syslinux, syslinux-themes-ubuntu-xenial, gfxboot-theme-ubuntu, syslinux-utils, squashfs-tools, livecd-rootfs, genisoimage, syslinux-themes-lliurex, xorriso, lzma (>=9.22-2ubuntu2)
+Description: 
+ <insert long description, indented with spaces>
