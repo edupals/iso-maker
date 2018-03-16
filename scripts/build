@@ -92,9 +92,14 @@ fi
 cp binary/casper/initrd.img*-generic binary/casper/initrd.lz
 EOF
 
+[ ! -e "/usr/share/isomaker/defaultsettings" ] || source "/usr/share/isomaker/defaultsettings"
+[ ! -e "auto/settings" ] || source auto/settings
+
         cat > pooltemplatevariables <<EOF
 s%\${SUITE}%${LB_DISTRIBUTION}%g
 s%\${MIRROR}%${LB_MIRROR_CHROOT}%g
+s%\${DISTRIBUTION_VERSION}%${DISTRIBUTION_VERSION}%g
+s%\${DISTRIBUTION_NAME}%${DISTRIBUTION_NAME}%g
 EOF
         cat > config/hooks/generatepoolefi.binary <<'EOF'
 #! /bin/sh
