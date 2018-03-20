@@ -1,4 +1,4 @@
-have iso-maker &&
+have isomaker &&
 _iso_maker()             
 {
     local cur prev opts base
@@ -17,7 +17,7 @@ _iso_maker()
     #
     case "${prev}" in
         build)
-            local running=$( ls /usr/share/iso-maker/flavours | tr "\n" " ")
+            local running=$( ls /usr/share/isomaker/flavours | tr "\n" " ")
             COMPREPLY=( $(compgen -W "${running}" -- ${cur}) )
             return 0
             ;;
@@ -28,4 +28,4 @@ _iso_maker()
    COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
    return 0
 }
-[ "$have" ] && complete -F _iso_maker iso-maker
+[ "$have" ] && complete -F _iso_maker isomaker
