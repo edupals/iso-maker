@@ -1,4 +1,4 @@
-bash_completion/*   /etc/bash_completion/
+bash_completion/*   /etc/bash_completion.d/
 hooks               /usr/share/isomaker/
 libs                /usr/share/isomaker/
 scripts             /usr/share/isomaker/
