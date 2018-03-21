@@ -75,23 +75,23 @@ setEnvironment(){
 	fi
 
 	if [ -n "$MIRROR" ]; then
-		echo "MIRROR=$MIRROR" >> $VARIABLES_FILE
-		echo "MIRRORDEFAULT=$MIRROR" >> $VARIABLES_FILE
+		echo "MIRROR=\"$MIRROR\"" >> $VARIABLES_FILE
+		echo "MIRRORDEFAULT=\"$MIRROR\"" >> $VARIABLES_FILE
 	fi
 	if [ -n "$KERNEL" ]; then
-		echo "KERNEL_PACKAGES=$KERNEL_PACKAGES" >> $VARIABLES_FILE
+		echo "KERNEL_PACKAGES=\"$KERNEL_PACKAGES\"" >> $VARIABLES_FILE
 	fi
 
 	if [ -n "$ARCH" ]; then
-		echo "ARCH=${ARCH}" >> $VARIABLES_FILE
+		echo "ARCH=\"${ARCH}\"" >> $VARIABLES_FILE
 	fi
 	
 	if [ -n "$INTERACTIVE" ]; then
 		echo "INTERACTIVE=true" >> $VARIABLES_FILE
 	fi
 
-	echo "DISTRO=${DISTRO}" >> $VARIABLES_FILE
-	echo "FLAVOUR=${FLAVOUR}" >> $VARIABLES_FILE
+	echo "DISTRO=\"${DISTRO}\"" >> $VARIABLES_FILE
+	echo "FLAVOUR=\"${FLAVOUR}\"" >> $VARIABLES_FILE
 }
 
 parseArgs(){

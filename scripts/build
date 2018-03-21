@@ -92,8 +92,8 @@ fi
 cp binary/casper/initrd.img*-generic binary/casper/initrd.lz
 EOF
 
-[ ! -e "/usr/share/isomaker/defaultsettings" ] || source "/usr/share/isomaker/defaultsettings"
-[ ! -e "auto/settings" ] || source auto/settings
+[ ! -e "/usr/share/isomaker/defaultsettings" ] || . "/usr/share/isomaker/defaultsettings"
+[ ! -e "auto/settings" ] || . auto/settings
 
         cat > pooltemplatevariables <<EOF
 s%\${SUITE}%${LB_DISTRIBUTION}%g
