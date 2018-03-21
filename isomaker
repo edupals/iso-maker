@@ -25,7 +25,7 @@ NC='\033[0m' # No Color
 # This include function addPPA
 # This include function cleanExtraSources
 # This include function addExtraMirror
-source /usr/share/iso-maker/libs/IsoMakerUtils 
+source /usr/share/isomaker/libs/IsoMakerUtils 
 
 # Functions
 
@@ -183,12 +183,14 @@ setEnvironment
 
 cleanExtraSources
 
+mkdir -p auto/additional_config
+rsync -ax --ignore-existing  /usr/share/isomaker/types/$DISTRO/configuration/common/* auto/additional_config/ || true
+rsync -ax --ignore-existing  /usr/share/isomaker/types/$DISTRO/configuration/$FLAVOUR/* auto/additional_config || true
+mkdir -p auto/additional_config/preseed/
+rsync -ax --ignore-existing  /usr/share/lliurex-preseed/common/lliurex-all auto/additional_config/preseed/lliurex-all.preseed.chroot
 
 lb config 
 
-rsync -ax --ignore-existing  /usr/share/isomaker/types/$DISTRO/configuration/common/* config/ || true
-rsync -ax --ignore-existing  /usr/share/isomaker/types/$DISTRO/configuration/$FLAVOUR/* config/ || true
-rsync -ax --ignore-existing  /usr/share/lliurex-preseed/common/lliurex-all config/preseed/lliurex-all.preseed.chroot
 
 # Append ppas
 if [ "${EXTRA_PPAS}" != "" ]; then
