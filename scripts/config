@@ -37,8 +37,8 @@ rm -rf config
 echo "Building on $(hostname --fqdn)"
 
 # load settings for build iso
-[ ! -e "/usr/share/isomaker/defaultsettings" ] || source "/usr/share/isomaker/defaultsettings"
-[ ! -e "auto/settings" ] || source auto/settings
+[ ! -e "/usr/share/isomaker/defaultsettings" ] || . "/usr/share/isomaker/defaultsettings"
+[ ! -e "auto/settings" ] || . auto/settings
 
 
 #Sanity checks
