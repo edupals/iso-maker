@@ -3,4 +3,5 @@ hooks               /usr/share/isomaker/
 libs                /usr/share/isomaker/
 scripts             /usr/share/isomaker/
 uefi                /usr/share/isomaker/
-isomaker           /usr/sbin/
+isomaker            /usr/sbin/
+defaultsettings     /usr/share/isomaker/
