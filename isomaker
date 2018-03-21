@@ -74,19 +74,19 @@ setEnvironment(){
 		cp /usr/share/isomaker/types/$DISTRO/settings ./auto/
 	fi
 
-	if [ -n $MIRROR ]; then
+	if [ -n "$MIRROR" ]; then
 		echo "MIRROR=$MIRROR" >> $VARIABLES_FILE
 		echo "MIRRORDEFAULT=$MIRROR" >> $VARIABLES_FILE
 	fi
-	if [ -n $KERNEL ]; then
+	if [ -n "$KERNEL" ]; then
 		echo "KERNEL_PACKAGES=$KERNEL_PACKAGES" >> $VARIABLES_FILE
 	fi
 
-	if [ -n $ARCH ]; then
+	if [ -n "$ARCH" ]; then
 		echo "ARCH=${ARCH}" >> $VARIABLES_FILE
 	fi
 	
-	if [ -n $INTERACTIVE ]; then
+	if [ -n "$INTERACTIVE" ]; then
 		echo "INTERACTIVE=true" >> $VARIABLES_FILE
 	fi
 
