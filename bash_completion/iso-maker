@@ -1,4 +1,4 @@
-have iso-maker &&
+have isomaker &&
 _iso_maker()             
 {
     local cur prev opts base
@@ -28,4 +28,4 @@ _iso_maker()
    COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
    return 0
 }
-[ "$have" ] && complete -F _iso_maker iso-maker
+[ "$have" ] && complete -F _iso_maker isomaker
