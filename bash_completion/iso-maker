@@ -17,7 +17,8 @@ _iso_maker()
     #
     case "${prev}" in
         build)
-            local running=$( ls /usr/share/isomaker/flavours | tr "\n" " ")
+
+            local running=$( ls /usr/share/isomaker/types | tr "\n" " ")
             COMPREPLY=( $(compgen -W "${running}" -- ${cur}) )
             return 0
             ;;
