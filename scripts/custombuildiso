@@ -23,6 +23,9 @@ Arguments "${@}"
 Read_conffiles config/all config/common config/bootstrap config/chroot config/binary config/source
 Set_defaults
 
+[ ! -e "/usr/share/isomaker/defaultsettings" ] || . "/usr/share/isomaker/defaultsettings"
+[ ! -e "auto/settings" ] || . auto/settings
+
 case "${LB_BINARY_IMAGES}" in
 	iso)
 		IMAGE="binary.iso"
