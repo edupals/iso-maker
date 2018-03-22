@@ -31,7 +31,7 @@ source /usr/share/isomaker/libs/IsoMakerUtils
 
 usage(){
 	echo "usage"
-	echo -e "\t $(basename $0) build DISTRO FLAVOUR EXTRAOPTIONS"
+	echo -e "\t $(basename $0) build|configure DISTRO FLAVOUR EXTRAOPTIONS"
 	echo -e "\t $(basename $0) clean"
 	echo -e ""
 	echo -e "\t * EXTRAOPTIONS:"
@@ -99,8 +99,8 @@ parseArgs(){
 	while [[ $# > 0 ]]; do
 		key="$1"
 		case $key in 
-			build)
-				ACTION="build"
+			build|configure)
+				ACTION=$key
 				DISTRO="$2"
 				FLAVOUR="$3"
 				shift
