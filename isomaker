@@ -167,7 +167,7 @@ case $ACTION in
 		lb clean
 		exit 0
 	;;
-	build)
+	build|configure)
 		#continue
 	;;
 	*)
@@ -201,7 +201,9 @@ if [ "${EXTRA_MIRRORS}" != "" ]; then
 	addExtraMirror ${EXTRA_MIRRORS}
 fi
 
-
+if [ "$ACTION" = "configure" ]; then
+	exit 0
+fi
 lb build
 cerr=$?
 
