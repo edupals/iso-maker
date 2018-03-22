@@ -106,7 +106,7 @@ case $BINARYFORMAT in
 esac
 
 # Is interactive ?
-if [ $INTERACTIVE ]; then
+if [ "$INTERACTIVE" = true ]; then
 	OPTS="${OPTS:+$OPTS } --interactive=true"
 fi
 
