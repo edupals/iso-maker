@@ -112,23 +112,13 @@ parseArgs(){
 				ARCH="$2"
 				shift
 			;;
-			--arch)
-				ARCH=${key##--arch=}
-			;;
 			-k)
 				KERNEL_PACKAGES="$2"
 				shift
 			;;
-			--kernel)
-				KERNEL_PACKAGES=${key##--kernel=}
-			;;
-
 			-m)
 				MIRROR="$2"
 				shift
-			;;
-			--mirror)
-				MIRROR=${key##--mirror=}
 			;;
 			-i|--interactive)
 				INTERACTIVE="true"
@@ -137,17 +127,10 @@ parseArgs(){
 				EXTRA_PPAS="${EXTRA_PPAS} $2"
 				shift
 			;;
-			--ppa)
-				EXTRA_PPAS="${EXTRA_PPAS} ${key##--ppa=}"
-			;;
 			-e)
 				EXTRA_MIRRORS="${EXTRA_MIRRORS} $2"
 				shift
 			;;
-			--extramirror)
-				EXTRA_MIRRORS="${EXTRA_MIRRORS} ${key##--extramirror=}"
-			;;
-
 		esac
 		shift
 	done
