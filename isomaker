@@ -165,6 +165,7 @@ parseArgs $@
 case $ACTION in 
 	clean)
 		lb clean
+		rm -r *
 		exit 0
 	;;
 	build|configure)
