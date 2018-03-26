@@ -5,3 +5,4 @@ scripts             /usr/share/isomaker/
 uefi                /usr/share/isomaker/
 isomaker            /usr/sbin/
 defaultsettings     /usr/share/isomaker/
+docs/*		    /usr/share/doc/isomaker/
