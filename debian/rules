@@ -25,5 +25,5 @@
 
 
 override_dh_install:
-	touch kk
+	marked-man doc/man.md 
 	dh_install
