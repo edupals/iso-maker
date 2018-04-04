@@ -8,6 +8,6 @@ Homepage: http://lliurex.net
 
 Package: isomaker
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, live-build, curl, reprepro, syslinux, syslinux-themes-ubuntu-xenial, gfxboot-theme-ubuntu, syslinux-utils, squashfs-tools, livecd-rootfs, genisoimage, syslinux-themes-lliurex, xorriso, lzma (>=9.22-2ubuntu2)
+Depends: ${shlibs:Depends}, ${misc:Depends}, live-build, curl, reprepro, syslinux, syslinux-themes-ubuntu-xenial, gfxboot-theme-ubuntu, syslinux-utils, squashfs-tools, livecd-rootfs, genisoimage, xorriso, lzma (>=9.22-2ubuntu2)
 Description: 
  <insert long description, indented with spaces>
