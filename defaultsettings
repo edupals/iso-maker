@@ -12,7 +12,7 @@ SYSLINUX_THEME="ubuntu-$SUITE"
 
 COMPONENTS="main restricted universe multiverse"
 
-ARCH="${ARCH}:=amd64"
+ARCH="amd64"
 
 BINARY_REMOVE_LINUX=:
 
