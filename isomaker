@@ -8,6 +8,7 @@ FLAVOUR=""
 
 MIRROR=""
 EXTRA_MIRRORS=""
+EXTRA_MIRRORS_UNTRUSTED=""
 EXTRA_PPAS=""
 
 DEFAULTVERSION="19"
@@ -35,11 +36,12 @@ usage(){
 	echo -e "\t $(basename $0) clean"
 	echo -e ""
 	echo -e "\t * EXTRAOPTIONS:"
-	echo -e "\t    -a ARCH | --arch=ARCH"
-	echo -e "\t    -m MIRROR | --mirror=MIRROR"
-	echo -e "\t    -k KERNEL | --kernel=KERNEL"
-	echo -e "\t    -p PPA[:Pining_Number] | --ppa=PPA[:Pining_Number]"
-	echo -e "\t    -e url | --extramirror=url"
+	echo -e "\t    -a ARCH"
+	echo -e "\t    -m MIRROR"
+	echo -e "\t    -k KERNEL"
+	echo -e "\t    -p PPA[:Pining_Number]"
+	echo -e "\t    -e url"
+	echo -e "\t    -u url"
 	echo -e "\t    -i | --interactive"
 	echo -e "\t "
 }
@@ -127,6 +129,10 @@ parseArgs(){
 				EXTRA_PPAS="${EXTRA_PPAS} $2"
 				shift
 			;;
+			-u)
+				EXTRA_MIRRORS_UNTRUSTED="${EXTRA_MIRRORS_UNTRUSTED} $2"
+				shift
+			;;
 			-e)
 				EXTRA_MIRRORS="${EXTRA_MIRRORS} $2"
 				shift
@@ -184,6 +190,11 @@ fi
 if [ "${EXTRA_MIRRORS}" != "" ]; then
 	addExtraMirror ${EXTRA_MIRRORS}
 fi
+
+if [ "${EXTRA_MIRRORS_UNTRUSTED}" != "" ]; then
+	addExtraMirrorUntrusted ${EXTRA_MIRRORS_UNTRUSTED}
+fi
+
 
 if [ "$ACTION" = "configure" ]; then
 	exit 0

@@ -68,3 +68,9 @@ addExtraMirror(){
 		echo "deb $extra_mirror @DISTRIBUTION@ main restricted universe multiverse" >> config/archives/extra-ppas.list.chroot
 	done
 }
+
+addExtraMirrorUntrusted(){
+	for extra_mirror in $@; do
+		echo "deb [trusted=yes] $extra_mirror @DISTRIBUTION@ main restricted universe multiverse" >> config/archives/extra-ppas.list.chroot
+	done
+}

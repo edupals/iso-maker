@@ -8,7 +8,7 @@ BINARYFORMAT="iso-hybrid"
 
 ISO_VOLUME="Ubuntu $SUITE $(date +%Y%m%d-%H:%M)"
 
-SYSLINUX_THEME="ubuntu-$SUITE"
+SYSLINUX_THEME="ubuntu-xenial"
 
 COMPONENTS="main restricted universe multiverse"
 
