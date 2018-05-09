@@ -2,7 +2,7 @@
 
 ## SYNOPSIS
 
-`isomaker` `[build|configure]` DISTRO FLAVOUR [`-i`|`--interactive`] [`-a` ARCH ] [ `-m` URL ] [ `-k` KERNEL ] [`-p` PPA:PINNING ] [ `-e` SOURCE ]
+`isomaker` `[build|configure]` DISTRO FLAVOUR [`-i`|`--interactive`] [`-a` ARCH ] [ `-m` URL ] [ `-k` KERNEL ] [`-p` PPA:PINNING ] [ `-e` SOURCE ] [ `-u` SOURCE ] 
 `isomaker` `[clean]`
 
 ## ACTIONS
@@ -35,10 +35,18 @@
 		Append other mirror on chroot step. This mirror will be available into live and when distribution has been installed. This mirror must be formatted as sources.list. For example:
 			deb http://archive.ubuntu.com/ubuntu bionic main restricted universe multiverse
 
+	-u
+		Append untrusted mirror on chroot step . Mirror will be formatted as :
+			deb [trusted=yes] http://archive.ubuntu.com/ubuntu bionic main restricted universe multiverse
+
 ## CREATE NEW DISTRO CONFIG
 
 	Make folder on /usr/share/isomaker/types with distribution name. On this folder create `settings` file with variables to define general config. You can copy /usr/share/doc/isomaker/variables_template as template. Replace and comment all you need. Create /usr/share/isomaker/types/DISTRO/configuration folder. On this folder you will create all FLAVOURS. On configuration folder `common` word is reserved. You can use this folder to define files has been copy to all flavours on configure and build actions.
 
 	final_apt
+
+## Files 
+	
+	/usr/share/doc/variables_template
 
 	
