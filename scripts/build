@@ -167,7 +167,7 @@ EOF
 	# Enabling custom_binary_disk
 	sed -i -e 's%^lb binary_disk ${\*}%./custom_binary_disk ${*}%g' custom_binary
 	# Fixing disk/info
-	sed -i -e 's%Ubuntu%${DISTRIBUTION_NAME}%g' custom_binary_disk
+	sed -i -e "s%Ubuntu%${DISTRIBUTION_NAME}%g" custom_binary_disk
 
 	sed -i -e 's%^lb binary_iso ${\*}%auto/custombuildiso ${*}%g' custom_binary
 
