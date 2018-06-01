@@ -1,5 +1,11 @@
 reprepro
+curl
 live-build
 snapd
+syslinux
+squashfs-tools
+genisoimage
+lzma
 xorriso
 node-marked-man
+livecd-rootfs
