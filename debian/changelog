@@ -1,14 +1,8 @@
-isomaker (0.4) bionic; urgency=medium
-
-  * gfdsaf
-
- -- Raul Rodrigo Segura <raurodse@gmail.com>  Wed, 04 Apr 2018 12:19:59 +0200
-
 isomaker (0.3) bionic; urgency=medium
 
-  * asdf
+  * Add script to get last kernel and last initrd
 
- -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 03 Apr 2018 14:23:07 +0200
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 19 Jun 2018 14:18:23 +0200
 
 isomaker (0.2) bionic; urgency=medium
 
