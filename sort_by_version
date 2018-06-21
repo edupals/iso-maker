@@ -8,7 +8,7 @@ apt_pkg.init_system()
 
 list_packages = sys.stdin.readlines()
 if len(list_packages) > 0:
-    list_packages = map(lambda x: x.strip(),list_packages[1:])
+    list_packages = map(lambda x: x.strip(),list_packages)
 if len(sys.argv[1:0]) > 0:
     list_packages = sys.argv[1:]
 list_packages.sort(key=cmp)
