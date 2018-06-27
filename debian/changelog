@@ -1,4 +1,4 @@
-isomaker (0.3ubuntu1) bionic; urgency=medium
+isomaker (0.4) bionic; urgency=medium
 
   * Remove parseArg method to problem with arguments with quotes
   * Distros configuration now support auto folders
