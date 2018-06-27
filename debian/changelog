@@ -1,3 +1,11 @@
+isomaker (0.3ubuntu1) bionic; urgency=medium
+
+  * Remove parseArg method to problem with arguments with quotes
+  * Distros configuration now support auto folders
+  * New option to add sourceslist line as isomaker command line
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Wed, 27 Jun 2018 08:37:11 +0200
+
 isomaker (0.3) bionic; urgency=medium
 
   * Add script to get last kernel and last initrd
