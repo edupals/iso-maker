@@ -42,6 +42,7 @@ usage(){
 	echo -e "\t    -p PPA[:Pining_Number]"
 	echo -e "\t    -e url"
 	echo -e "\t    -u url"
+	echo -e "\t    -s LINEOFSOURCESLIST "
 	echo -e "\t    -i | --interactive"
 	echo -e "\t "
 }
@@ -68,7 +69,11 @@ setEnvironment(){
 
 	# Copy General auto scripts
 	if [ ! -e auto ]; then
-		cp -r /usr/share/isomaker/scripts ./auto
+		if [ -e /usr/share/isomaker/types/$DISTRO/auto ]; then
+			cp -r /usr/share/isomaker/types/$DISTRO/auto ./auto
+		else
+			cp -r /usr/share/isomaker/scripts ./auto
+		fi
 	fi
 
 	# Copy Distro configuration
@@ -96,60 +101,62 @@ setEnvironment(){
 	echo "FLAVOUR=\"${FLAVOUR}\"" >> $VARIABLES_FILE
 }
 
-parseArgs(){
-	
-	while [[ $# > 0 ]]; do
-		key="$1"
-		case $key in 
-			build|configure)
-				ACTION=$key
-				DISTRO="$2"
-				FLAVOUR="$3"
-				shift
-			;;
-			clean)
-				ACTION="clean"
-			;;
-			-a)
-				ARCH="$2"
-				shift
-			;;
-			-k)
-				KERNEL_PACKAGES="$2"
-				shift
-			;;
-			-m)
-				MIRROR="$2"
-				shift
-			;;
-			-i|--interactive)
-				INTERACTIVE="true"
-			;;
-			-p)
-				EXTRA_PPAS="${EXTRA_PPAS} $2"
-				shift
-			;;
-			-u)
-				EXTRA_MIRRORS_UNTRUSTED="${EXTRA_MIRRORS_UNTRUSTED} $2"
-				shift
-			;;
-			-e)
-				EXTRA_MIRRORS="${EXTRA_MIRRORS} $2"
-				shift
-			;;
-		esac
-		shift
-	done
-
-}
 
 ##########
-#		 #
+#	 #
 #  MAIN  #
-#		 #
+#	 #
 ##########
 
-parseArgs $@
+# Parse arguments
+
+while [[ $# > 0 ]]; do
+	case $1 in 
+		build|configure)
+			ACTION=$1
+			DISTRO="$2"
+			FLAVOUR="$3"
+			shift
+		;;
+		clean)
+			ACTION="clean"
+		;;
+		-a)
+			ARCH="$2"
+			shift
+		;;
+		-k)
+			KERNEL_PACKAGES="$2"
+			shift
+		;;
+		-m)
+			MIRROR="$2"
+			shift
+		;;
+		-i|--interactive)
+			INTERACTIVE="true"
+		;;
+		-p)
+			EXTRA_PPAS="${EXTRA_PPAS} $2"
+			shift
+		;;
+		-u)
+			EXTRA_MIRRORS_UNTRUSTED="${EXTRA_MIRRORS_UNTRUSTED} $2"
+			shift
+		;;
+		-e)
+			EXTRA_MIRRORS="${EXTRA_MIRRORS} $2"
+			shift
+		;;
+		-s)
+			echo "$2"
+			SOURCELISTINLINE="$2"
+			shift
+		;;
+	esac
+	shift
+done
+
 
 case $ACTION in 
 	clean)
@@ -193,6 +200,10 @@ fi
 
 if [ "${EXTRA_MIRRORS_UNTRUSTED}" != "" ]; then
 	addExtraMirrorUntrusted ${EXTRA_MIRRORS_UNTRUSTED}
+fi
+
+if [ "${SOURCELISTINLINE}" != "" ]; then
+	addSourceListInline ${SOURCELISTINLINE}
 fi
 
 
