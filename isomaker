@@ -81,6 +81,11 @@ setEnvironment(){
 		cp /usr/share/isomaker/types/$DISTRO/settings ./auto/
 	fi
 
+	# Copy if exists custom uefi files
+	if [ -e /usr/share/isomaker/types/$DISTRO/uefi ]; then
+		cp -r /usr/share/isomaker/types/$DISTRO/uefi ./auto/
+	fi
+
 	if [ -n "$MIRROR" ]; then
 		echo "MIRROR=\"$MIRROR\"" >> $VARIABLES_FILE
 		echo "MIRRORDEFAULT=\"$MIRROR\"" >> $VARIABLES_FILE
