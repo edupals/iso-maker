@@ -39,6 +39,11 @@
 		Append untrusted mirror on chroot step . Mirror will be formatted as :
 			deb [trusted=yes] http://archive.ubuntu.com/ubuntu bionic main restricted universe multiverse
 
+	-s
+		Append line to sources.list file on build stage. If you want set two lines or more, you append with \n character.Examples:
+			-s "deb http://archive.ubuntu.com/ubuntu bionic partner"
+			-s "deb http://archive.ubuntu.com/ubuntu bionic partner\ndeb http://archive.ubuntu.com/ubuntu bionic multiverse"
+
 ## CREATE NEW DISTRO CONFIG
 
 	Make folder on /usr/share/isomaker/types with distribution name. On this folder create `settings` file with variables to define general config. You can copy /usr/share/doc/isomaker/variables_template as template. Replace and comment all you need. Create /usr/share/isomaker/types/DISTRO/configuration folder. On this folder you will create all FLAVOURS. On configuration folder `common` word is reserved. You can use this folder to define files has been copy to all flavours on configure and build actions.
