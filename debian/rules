@@ -25,5 +25,5 @@
 
 
 override_dh_install:
-	marked-man docs/man.md > docs/isomaker.manpages
+	marked-man docs/man.md > docs/isomaker.1
 	dh_install
