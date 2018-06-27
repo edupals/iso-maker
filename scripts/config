@@ -153,7 +153,6 @@ lb config noauto \
 	--apt-source-archives false \
 	--archives extra-ppas.list \
 	${KERNEL_FLAVOURS:+--linux-flavours "$KERNEL_FLAVOURS"} \
-	${KERNEL_PACKAGES:+--linux-packages "$KERNEL_PACKAGES"} \
 	${PACKAGE_KEYRING:+--keyring-packages $PACKAGE_KEYRING} \
 	--initsystem none \
 	--bootloader "$BOOTLOADER" \
@@ -196,7 +195,11 @@ fi
 
 case $ARCH in
 	amd64)
-	cp -r /usr/share/isomaker/uefi/. config/includes.binary
+		if [ -e auto/uefi ]; then
+			cp -r auto/uefi/. config/includes.binary
+		else
+			cp -r /usr/share/isomaker/uefi/. config/includes.binary
+		fi
 	;;
 esac
 
