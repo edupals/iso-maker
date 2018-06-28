@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 set -e
 
 export LB_LINUX_FLAVOURS="none"
