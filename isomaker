@@ -189,8 +189,22 @@ mkdir -p auto/additional_config
 rsync -ax --ignore-existing  /usr/share/isomaker/types/$DISTRO/configuration/common/* auto/additional_config/ || true
 rsync -ax --ignore-existing  /usr/share/isomaker/types/$DISTRO/configuration/$FLAVOUR/* auto/additional_config || true
 mkdir -p auto/additional_config/preseed/
-rsync -ax --ignore-existing  /usr/share/lliurex-preseed/common/lliurex-all auto/additional_config/preseed/lliurex-all.preseed.chroot
-
+if [ -e /usr/share/isomaker/types/$DISTRO/preseed.list ]; then
+	while read line; do
+		if [ -e "$line" ]; then
+			FILENAME=$(basename $line)
+			rsync -ax --ignore-existing "$line" auto/additional_config/preseed/${FILENAME}.preseed.chroot
+		fi
+	done < /usr/share/isomaker/types/$DISTRO/preseed.list
+fi
+if [ -e /usr/share/isomaker/types/$DISTRO/configuration/$FLAVOUR/preseed.list ]; then
+	while read line; do
+		if [ -e "$line" ]; then
+			FILENAME=$(basename $line)
+			rsync -ax --ignore-existing "$line" auto/additional_config/preseed/${FILENAME}_${FLAVOUR}.preseed.chroot
+		fi
+	done < /usr/share/isomaker/types/$DISTRO/configuration/$FLAVOUR/preseed.list
+fi
 lb config 
 
 
