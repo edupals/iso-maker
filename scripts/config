@@ -110,7 +110,7 @@ if [ "$INTERACTIVE" = true ]; then
 	OPTS="${OPTS:+$OPTS } --interactive=true"
 fi
 
-for package in "${LIVE_PACKAGES}"; do
+for package in ${LIVE_PACKAGES}; do
 	add_package live $package
 done
 
