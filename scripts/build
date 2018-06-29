@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 set -e
 
 export LC_ALL=C
@@ -92,16 +92,16 @@ fi
 cp binary/casper/initrd.img*-generic binary/casper/initrd.lz
 EOF
 
-[ ! -e "/usr/share/isomaker/defaultsettings" ] || . "/usr/share/isomaker/defaultsettings"
-[ ! -e "auto/settings" ] || . auto/settings
-
-        cat > pooltemplatevariables <<EOF
+		[ ! -e "/usr/share/isomaker/defaultsettings" ] || . "/usr/share/isomaker/defaultsettings"
+		[ ! -e "auto/settings" ] || . auto/settings
+		if [ "${LB_ARCHITECTURES}" = 'amd64' ]; then
+        	cat > pooltemplatevariables <<EOF
 s%\${SUITE}%${LB_DISTRIBUTION}%g
 s%\${MIRROR}%${LB_MIRROR_CHROOT}%g
 s%\${DISTRIBUTION_VERSION}%${DISTRIBUTION_VERSION}%g
 s%\${DISTRIBUTION_NAME}%${DISTRIBUTION_NAME}%g
 EOF
-        cat > config/hooks/generatepoolefi.binary <<'EOF'
+        	cat > config/hooks/generatepoolefi.binary <<'EOF'
 #! /bin/sh
 sed -i -f pooltemplatevariables binary/conf/distributions
 sed -i -f pooltemplatevariables binary/conf/updates
@@ -112,7 +112,7 @@ reprepro retrack
 reprepro export
 cd ..
 EOF
-
+		fi
 	lb chroot "$@"
 
 	echo "===== Checking size of /usr/share/doc ====="
@@ -169,7 +169,9 @@ EOF
 	# Fixing disk/info
 	sed -i -e "s%Ubuntu%${DISTRIBUTION_NAME}%g" custom_binary_disk
 
-	sed -i -e 's%^lb binary_iso ${\*}%auto/custombuildiso ${*}%g' custom_binary
+	if [ "${LB_ARCHITECTURES}" = 'amd64' ]; then
+		sed -i -e 's%^lb binary_iso ${\*}%auto/custombuildiso ${*}%g' custom_binary
+	fi
 
 	./custom_binary "$@"
 	touch binary.success
