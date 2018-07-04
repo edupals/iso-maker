@@ -80,8 +80,9 @@ EOF
 
         cat > config/hooks/fixvmlinuz.binary <<'EOF'
 #! /bin/sh
-kernel=$(ls binary/casper/vmlinuz-*-generic | grep -v efi | sort -r | head -1)
-kernel_efi=$(ls binary/casper/vmlinuz-* | grep efi | sort -r | head -1)
+kernel=$(ls binary/casper/vmlinuz-*-generic | grep -v efi | sort_by_version | tac | head -1)
+kernel_efi=$(ls binary/casper/vmlinuz-* | grep efi | sort_by_version | tac | head -1)
+initrd=$(ls binary/casper/initrd.img-* | grep -v efi | sort_by_version | tac | head -1)
 if [ ! -z $kernel ]; then
         cp $kernel binary/casper/vmlinuz
 fi
@@ -89,7 +90,7 @@ if [ ! -z $kernel_efi ]; then
         cp $kernel_efi binary/casper/vmlinuz.efi
 fi
 
-cp binary/casper/initrd.img*-generic binary/casper/initrd.lz
+cp $initrd binary/casper/initrd.lz
 EOF
 
 		[ ! -e "/usr/share/isomaker/defaultsettings" ] || . "/usr/share/isomaker/defaultsettings"
