@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Raul Rodrigo Segura <raurodse@gmail.com>
 Build-Depends: debhelper (>=9), node-marked-man
-Standards-Version: 3.9.6
+Standards-Version: 4.1.4
 Homepage: http://lliurex.net
 
 Package: isomaker
