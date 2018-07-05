@@ -4,5 +4,6 @@ libs                /usr/share/isomaker/
 scripts             /usr/share/isomaker/
 uefi                /usr/share/isomaker/
 isomaker            /usr/sbin/
+sort_by_version     /usr/sbin/
 defaultsettings     /usr/share/isomaker/
 docs/*		    /usr/share/doc/isomaker/
