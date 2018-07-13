@@ -187,7 +187,7 @@ cleanExtraSources
 
 mkdir -p auto/additional_config
 rsync -ax --ignore-existing  /usr/share/isomaker/types/$DISTRO/configuration/common/* auto/additional_config/ || true
-rsync -ax --ignore-existing  /usr/share/isomaker/types/$DISTRO/configuration/$FLAVOUR/* auto/additional_config || true
+rsync -ax /usr/share/isomaker/types/$DISTRO/configuration/$FLAVOUR/* auto/additional_config || true
 mkdir -p auto/additional_config/preseed/
 if [ -e /usr/share/isomaker/types/$DISTRO/preseed.list ]; then
 	while read line; do
