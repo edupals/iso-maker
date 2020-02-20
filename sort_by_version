@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import apt_pkg
 import sys
 import functools
@@ -8,7 +8,7 @@ apt_pkg.init_system()
 
 list_packages = sys.stdin.readlines()
 if len(list_packages) > 0:
-    list_packages = map(lambda x: x.strip(),list_packages)
+    list_packages = list(map(lambda x: x.strip(),list_packages))
 if len(sys.argv[1:0]) > 0:
     list_packages = sys.argv[1:]
 list_packages.sort(key=cmp)
