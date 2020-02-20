@@ -1,3 +1,9 @@
+isomaker (0.6) bionic; urgency=medium
+
+  * Migrate to python3 
+
+ -- Daniel Duran Vecino <daduve@gmail.com>  Thu, 20 Feb 2020 15:37:07 +0100
+
 isomaker (0.5) bionic; urgency=medium
 
   * force final_apt from flavour
