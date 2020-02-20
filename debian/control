@@ -8,6 +8,6 @@ Homepage: http://lliurex.net
 
 Package: isomaker
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, live-build, curl, reprepro, syslinux, syslinux-themes-ubuntu-xenial, gfxboot-theme-ubuntu, syslinux-utils, squashfs-tools, livecd-rootfs, genisoimage, xorriso, lzma (>=9.22-2ubuntu2), python-apt
+Depends: ${shlibs:Depends}, ${misc:Depends}, live-build, curl, reprepro, syslinux, syslinux-themes-ubuntu-xenial, gfxboot-theme-ubuntu, syslinux-utils, squashfs-tools, livecd-rootfs, genisoimage, xorriso, lzma (>=9.22-2ubuntu2), python3-apt
 Description: Tool to build iso images based on Ubuntu
  This tool is a wrapper for livecd-rootfs and live-build.
