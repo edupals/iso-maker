@@ -205,8 +205,11 @@ if [ -e /usr/share/isomaker/types/$DISTRO/configuration/$FLAVOUR/preseed.list ];
 		fi
 	done < /usr/share/isomaker/types/$DISTRO/configuration/$FLAVOUR/preseed.list
 fi
-lb config 
-
+if [ "$ACTION" = "chroot" ]; then
+	lb config --initramfs none
+else
+	lb config 
+fi
 
 # Append ppas
 if [ "${EXTRA_PPAS}" != "" ]; then
@@ -229,6 +232,13 @@ fi
 if [ "$ACTION" = "configure" ]; then
 	exit 0
 fi
+
+if [ "$ACTION" = "chroot" ]; then
+	lb bootstrap
+	lb chroot
+	exit 0
+fi
+
 lb build
 cerr=$?
 
