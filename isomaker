@@ -117,7 +117,7 @@ setEnvironment(){
 
 while [[ $# > 0 ]]; do
 	case $1 in 
-		build|configure)
+		build|configure|chroot)
 			ACTION=$1
 			DISTRO="$2"
 			FLAVOUR="$3"
@@ -169,7 +169,7 @@ case $ACTION in
 		rm -r *
 		exit 0
 	;;
-	build|configure)
+	build|configure|chroot)
 		#continue
 	;;
 	*)
