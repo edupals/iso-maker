@@ -1,3 +1,9 @@
+isomaker (0.7) focal; urgency=medium
+
+  * Firts version for focal
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 25 May 2021 13:23:00 +0200
+
 isomaker (0.6) bionic; urgency=medium
 
   * Migrate to python3 
