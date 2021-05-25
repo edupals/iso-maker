@@ -1,3 +1,9 @@
+isomaker (0.8) focal; urgency=medium
+
+  * Update config
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 25 May 2021 15:59:03 +0200
+
 isomaker (0.7) focal; urgency=medium
 
   * Firts version for focal
