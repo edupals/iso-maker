@@ -105,6 +105,11 @@ case $BINARYFORMAT in
 		;;
 esac
 
+
+# A borrar tmp remove testing
+BOOTLOADER=grub2
+
+
 # Is interactive ?
 if [ "$INTERACTIVE" = true ]; then
 	OPTS="${OPTS:+$OPTS } --interactive=true"
@@ -114,9 +119,9 @@ for package in ${LIVE_PACKAGES}; do
 	add_package live $package
 done
 
-case $ARCH in
-	amd64)	add_package live linux-signed-generic ;;
-esac
+#case $ARCH in
+#	amd64)	add_package live linux-signed-generic ;;
+#esac
 #		add_chroot_hook remove-gnome-icon-cache
 
 

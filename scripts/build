@@ -80,7 +80,7 @@ EOF
 
         cat > config/hooks/fixvmlinuz.binary <<'EOF'
 #! /bin/sh
-kernel=$(ls binary/casper/vmlinuz-*-generic | grep -v efi | sort_by_version | tac | head -1)
+kernel=$(ls binary/casper/vmlinuz-* | grep -v efi | sort_by_version | tac | head -1)
 kernel_efi=$(ls binary/casper/vmlinuz-* | grep efi | sort_by_version | tac | head -1)
 initrd=$(ls binary/casper/initrd.img-* | grep -v efi | sort_by_version | tac | head -1)
 if [ ! -z $kernel ]; then
@@ -88,6 +88,10 @@ if [ ! -z $kernel ]; then
 fi
 if [ ! -z $kernel_efi ]; then
         cp $kernel_efi binary/casper/vmlinuz.efi
+fi
+
+if [ ! -e "binary/casper/vmlinuz.efi" ]; then
+		cp binary/casper/vmlinuz binary/casper/vmlinuz.efi
 fi
 
 cp $initrd binary/casper/initrd.lz
@@ -160,6 +164,8 @@ EOF
 		echo "==== NetworkManager not installed ===="
 	fi
 
+    mkdir -p binary/.disk/ || true
+    echo full_cd/single > binary/.disk/cd_type
 
 	cp /usr/lib/live/build/lb_binary custom_binary
 	cp /usr/lib/live/build/lb_binary_disk custom_binary_disk
