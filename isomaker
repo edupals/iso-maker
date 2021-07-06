@@ -231,13 +231,13 @@ if [ -e /usr/share/isomaker/types/$DISTRO/configuration/$FLAVOUR/preseed.list ];
 	done < /usr/share/isomaker/types/$DISTRO/configuration/$FLAVOUR/preseed.list
 fi
 
-if [ "$NO_LIVE" = "true" ]; then
-	find auto/ -iname *_live -exec rm {} \;
-fi
 if [ "$ACTION" = "chroot" ]; then
 	lb config --initramfs none
 else
 	lb config 
+fi
+if [ "$NO_LIVE" = "true" ]; then
+	find config/package-lists -iname *_live -exec rm {} \;
 fi
 
 # Append ppas
