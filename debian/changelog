@@ -1,3 +1,9 @@
+isomaker (0.9.2) focal; urgency=medium
+
+  * Move remove live packages to correct order
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 06 Jul 2021 19:22:41 +0200
+
 isomaker (0.9.1) focal; urgency=medium
 
   * Replace lliurex16 by lliurex21
