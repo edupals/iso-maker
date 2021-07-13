@@ -186,6 +186,7 @@ case $ACTION in
 	clean)
 		lb clean
 		rm -r *
+		rm -r .build
 		exit 0
 	;;
 	build|configure|chroot)
