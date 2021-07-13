@@ -1,3 +1,9 @@
+isomaker (0.10) focal; urgency=medium
+
+  * Remove .build folder
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Wed, 14 Jul 2021 00:10:25 +0200
+
 isomaker (0.9.2) focal; urgency=medium
 
   * Move remove live packages to correct order
