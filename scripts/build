@@ -10,48 +10,125 @@ Arguments "${@}"
 Read_conffiles config/all config/common config/bootstrap config/chroot config/binary config/source
 Set_defaults
 
+. auto/functions
+
+# New nf_tables-based versions of iptables don't work well on old kernels.
+# We aren't sure exactly how old is a problem: 4.15 works, but with 4.4 new
+# rules are added to all chains in the requested table rather than just one,
+# and the new rules seem to have no useful effect.  In such cases,
+# iptables-legacy works better.
+#
+# We can simplify this once livecd-rootfs no longer needs to support running
+# on Ubuntu 16.04 (that is, once Launchpad's build VMs are upgraded to
+# Ubuntu 18.04).
+run_iptables () {
+    local kver kver_major kver_minor
+
+    kver="$(uname -r)"
+    kver="${kver%%-*}"
+    kver_major="${kver%%.*}"
+    kver="${kver#*.}"
+    kver_minor="${kver%%.*}"
+
+
+    # LP: #1917920
+    # I'm seeing issues after iptables got upgraded from 1.8.5 to
+    # 1.8.7 Somehow installing our nat rule doesn't get activated, and
+    # no networking is happening at all.
+
+    # But somehow calling both iptables -S makes things start working.
+    # Maybe no default chains are installed in our network namespace?!
+    # Or 1.8.7 is somehow broken?
+    iptables -v -t nat -S
+    iptables-legacy -v -t nat -S
+
+    if [ "$kver_major" -lt 4 ] || \
+       ([ "$kver_major" = 4 ] && [ "$kver_minor" -lt 15 ]); then
+        iptables-legacy "$@"
+    else
+        iptables "$@"
+    fi
+}
+
+if [ -n "$REPO_SNAPSHOT_STAMP" ]; then
+    if [ "`whoami`" != "root" ]; then
+        echo "Magic repo snapshots only work when running as root." >&2
+        exit 1
+    fi
+
+    apt-get -qyy install iptables
+
+    # Redirect all outgoing traffic to port 80 to proxy instead.
+    run_iptables -v -t nat -A OUTPUT -p tcp --dport 80 \
+        -m owner ! --uid-owner daemon -j REDIRECT --to 8080
+
+    # Run proxy as "daemon" to avoid infinite loop.
+    LB_PARENT_MIRROR_BOOTSTRAP=$LB_PARENT_MIRROR_BOOTSTRAP \
+    /usr/share/livecd-rootfs/magic-proxy \
+        --address="127.0.0.1" \
+        --port=8080 \
+        --run-as=daemon \
+        --cutoff-time="$REPO_SNAPSHOT_STAMP" \
+        --log-file=/build/livecd.magic-proxy.log \
+        --pid-file=config/magic-proxy.pid \
+        --background \
+        --setsid
+
+    # Quick check that magic proxy & iptables chains are working
+    timeout 3m apt-get update
+fi
+
+# Link output files somewhere launchpad-buildd will be able to find them.
+PREFIX="livecd.$PROJECT${SUBARCH:+-$SUBARCH}"
+
+if [ "${IMAGEFORMAT:-}" = "ubuntu-image" ]; then
+	# Use ubuntu-image instead of live-build
+
+	if [ "$PROJECT" = "ubuntu-core" ]; then
+		env SNAPPY_STORE_NO_CDN=1 \
+		ubuntu-image snap $UBUNTU_IMAGE_ARGS \
+			-O output "$PREFIX".model-assertion
+		# XXX: currently we only have one image generated, but really
+		#  we should be supporting more than one for models that
+		#  define those.
+		mv output/*.img "$PREFIX".img
+		xz -0 -T4 "$PREFIX".img
+		mv output/seed.manifest "$PREFIX".manifest
+	else
+		# First we need to build the gadget tree
+		make -C "config/$PREFIX-gadget" \
+			ARCH=$ARCH SERIES=$SUITE $GADGET_TARGET
+		ubuntu-image classic $UBUNTU_IMAGE_ARGS \
+			-s $SUITE -p $PROJECT -a $ARCH --subarch $SUBARCH \
+			-O output config/$PREFIX-gadget/install
+		# XXX: currently we only have one image generated, but really
+		#  we should be supporting more than one for models that
+		#  define those.
+		mv output/*.img "$PREFIX".img
+		xz -0 -T4 "$PREFIX".img
+		# Also link the output image to a filename that cdimage expects
+		ln "$PREFIX".img.xz livecd.ubuntu-cpc.disk1.img.xz
+		mv output/filesystem.manifest "$PREFIX".manifest
+	fi
+
+	exit 0
+fi
+
 # Setup cleanup function
 Setup_cleanup
 
 preinstall_snaps() {
-	lb chroot_resolv install
-	chroot chroot sh -c '
-		set -x;
-		cd /var/lib/snapd/seed;
-		SNAPPY_STORE_NO_CDN=1 snap download core'
-	for snap in "$@"; do
-		chroot chroot sh -c "
-			set -x;
-			cd /var/lib/snapd/seed;
-			SNAPPY_STORE_NO_CDN=1 snap download \"${snap%/*}\""
-	done
-	lb chroot_resolv remove
+	setup_mountpoint chroot
 
-	CORE_SNAP=$(cd chroot/var/lib/snapd/seed; ls -1 core_*.snap)
+	snap_prepare chroot
 
-	cat <<EOF > chroot/var/lib/snapd/seed/seed.yaml
-snaps:
- - name: core
-   channel: stable
-   file: ${CORE_SNAP}
-EOF
 	for snap in "$@"; do
-		snap_name=${snap%/*}
-		cat <<EOF >> chroot/var/lib/snapd/seed/seed.yaml
- - name: ${snap_name}
-   channel: stable
-EOF
-		case ${snap} in */classic) echo "   classic: true" >> chroot/var/lib/snapd/seed/seed.yaml;; esac
-		echo -n "   file: " >> chroot/var/lib/snapd/seed/seed.yaml
-		(cd chroot/var/lib/snapd/seed; ls -1 ${snap_name}_*.snap) \
-			>> chroot/var/lib/snapd/seed/seed.yaml
+		SNAP_NO_VALIDATE_SEED=1 snap_preseed chroot "${snap}"
 	done
 
-	mkdir -p chroot/var/lib/snapd/seed/snaps \
-		chroot/var/lib/snapd/seed/assertions
-	mv chroot/var/lib/snapd/seed/*.assert \
-		chroot/var/lib/snapd/seed/assertions/
-	mv chroot/var/lib/snapd/seed/*.snap chroot/var/lib/snapd/seed/snaps/
+	snap_validate_seed chroot
+
+	teardown_mountpoint chroot
 }
 
 rm -f binary.success
@@ -147,25 +224,10 @@ EOF
 		preinstall_snaps $snap_list
 	fi
 
-	# If the image pre-installs network-manager, let it manage all devices by
-	# default. Installing NM on an existing system only manages wifi and wwan via
-	# /usr/lib/NetworkManager/conf.d/10-globally-managed-devices.conf. When setting
-	# the global backend to NM, netplan overrides that file.
-	if [ -d chroot/usr/lib/NetworkManager ]; then
-		echo "===== Enabling all devices in NetworkManager ===="
-		mkdir -p chroot/etc/netplan
-		cat <<EOF > chroot/etc/netplan/01-network-manager-all.yaml
-# Let NetworkManager manage all devices on this system
-network:
-  version: 2
-  renderer: NetworkManager
-EOF
-	else
-		echo "==== NetworkManager not installed ===="
-	fi
+	configure_network_manager
 
-    mkdir -p binary/.disk/ || true
-    echo full_cd/single > binary/.disk/cd_type
+	mkdir -p binary/.disk/ || true
+	echo full_cd/single > binary/.disk/cd_type
 
 	cp /usr/lib/live/build/lb_binary custom_binary
 	cp /usr/lib/live/build/lb_binary_disk custom_binary_disk
@@ -224,7 +286,7 @@ for ISO in binary.iso binary.hybrid.iso; do
 done
 
 if [ -e "binary/$INITFS/filesystem.dir" ]; then
-	(cd "binary/$INITFS/filesystem.dir/" && tar -c *) | \
+	(cd "binary/$INITFS/filesystem.dir/" && tar -c --sort=name --xattrs *) | \
 		gzip -9 --rsyncable > "$PREFIX.rootfs.tar.gz"
 	chmod 644 "$PREFIX.rootfs.tar.gz"
 elif [ -e binary-tar.tar.gz ]; then
@@ -282,13 +344,13 @@ done
 NUMFLAVOURS="$(set -- $LB_LINUX_FLAVOURS; echo $#)"
 if [ "$NUMFLAVOURS" = 1 ] && [ "$LB_LINUX_FLAVOURS" != "none" ]; then
 	# only one kernel flavour
-	if [ -e "binary/$INITFS/vmlinuz" ]; then
+	if [ -f "binary/$INITFS/vmlinuz" ] && ! [ -h "binary/$INITFS/vmlinuz" ]; then
 		ln "binary/$INITFS/vmlinuz" "$PREFIX.kernel"
 		chmod 644 "$PREFIX.kernel"
 	else
 		ln -sf "$PREFIX.kernel-$LB_LINUX_FLAVOURS" "$PREFIX.kernel"
 	fi
-	if [ -e "binary/$INITFS/initrd.lz" ]; then
+	if [ -f "binary/$INITFS/initrd.lz" ] && ! [ -h "binary/$INITFS/initrd.lz" ]; then
 		ln "binary/$INITFS/initrd.lz" "$PREFIX.initrd"
 		chmod 644 "$PREFIX.initrd"
 	else

@@ -79,6 +79,7 @@ setEnvironment(){
 		fi
 	fi
 
+	cp -r /usr/share/isomaker/libs/functions ./auto/
 	# Copy Distro configuration
 	if [ -e /usr/share/isomaker/types/$DISTRO/settings ]; then
 		cp /usr/share/isomaker/types/$DISTRO/settings ./auto/
